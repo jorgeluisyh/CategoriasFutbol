@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Fútbol 8×8 – Equipo</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-top">
+      <h1>⚽ Fútbol 8×8 – <span>Equipo</span></h1>
+      <button class="reset-btn" id="resetBtn" title="Restablecer alineación">↺ Reset</button>
+    </div>
+    <p>Toca un jugador para gestionar el cambio</p>
+    <div class="legend">
+      <span class="leg-item" style="background:var(--bg50);color:var(--c50)">1× M50</span>
+      <span class="leg-item" style="background:var(--bg40);color:var(--c40)">2× M40</span>
+      <span class="leg-item" style="background:var(--bg30);color:var(--c30)">3× M30</span>
+      <span class="leg-item" style="background:var(--bglib);color:var(--clib)">2× Libre</span>
+    </div>
+  </div>
+
+  <div class="info-bar" id="infoBar">Cargando jugadores…</div>
+
+  <div class="main">
+    <div class="col-left">
+      <div class="col-head">Titulares · 8</div>
+      <div class="plist" id="starterList">
+        <div class="skeleton"></div><div class="skeleton"></div>
+        <div class="skeleton"></div><div class="skeleton"></div>
+        <div class="skeleton"></div><div class="skeleton"></div>
+        <div class="skeleton"></div><div class="skeleton"></div>
+      </div>
+    </div>
+    <div class="col-right">
+      <div class="col-head">Suplentes · 7</div>
+      <div class="plist" id="subList">
+        <div class="skeleton"></div><div class="skeleton"></div>
+        <div class="skeleton"></div><div class="skeleton"></div>
+        <div class="skeleton"></div><div class="skeleton"></div>
+        <div class="skeleton"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

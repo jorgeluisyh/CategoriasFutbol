@@ -1,0 +1,234 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #ecf1f7;
+  --surface: #ffffff;
+  --border:  #cdd9e8;
+  --text:    #1a2535;
+  --muted:   #6b7f93;
+  --shadow:  0 1px 3px rgba(20,40,80,.09), 0 0 0 1px rgba(20,40,80,.04);
+
+  --green:   #1e8444;
+  --orange:  #c85c00;
+  --red:     #b52a1e;
+
+  /* Categorías: texto / fondo badge */
+  --c50:  #6a1b9a; --bg50: #f3e5f5;
+  --c40:  #1255a0; --bg40: #ddeeff;
+  --c30:  #256b2a; --bg30: #e4f5e6;
+  --clib: #c45000; --bglib:#fff0e0;
+
+  /* Tiras laterales en cards */
+  --strip50: #9c27b0;
+  --strip40: #1976d2;
+  --strip30: #388e3c;
+  --striplib:#f57c00;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── Header ─────────────────────────────────────────── */
+.header {
+  background: var(--surface);
+  border-bottom: 2px solid var(--green);
+  padding: 10px 12px 6px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(20,40,80,.08);
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.header h1 {
+  font-size: .95rem;
+  font-weight: 800;
+  color: var(--text);
+}
+.header h1 span { color: var(--green); }
+.header p { font-size: .62rem; color: var(--muted); margin-top: 2px; }
+
+.reset-btn {
+  position: absolute;
+  right: 0;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: .78rem;
+  padding: 3px 8px;
+  cursor: pointer;
+  line-height: 1.4;
+  transition: background .15s, color .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.reset-btn:active { background: var(--border); color: var(--text); }
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 0 2px;
+  flex-wrap: wrap;
+}
+.leg-item {
+  font-size: .6rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+/* ── Info bar ────────────────────────────────────────── */
+.info-bar {
+  margin: 7px 8px;
+  padding: 7px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: .68rem;
+  color: var(--muted);
+  text-align: center;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color .2s, color .2s, background .2s;
+  box-shadow: var(--shadow);
+}
+.info-bar.active  { border-color: var(--orange); color: var(--orange); background: #fff8f2; }
+.info-bar.success { border-color: var(--green);  color: var(--green);  background: #f0faf4; }
+.info-bar.error   { border-color: var(--red);    color: var(--red);    background: #fff2f1; }
+
+/* ── Layout ──────────────────────────────────────────── */
+.main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 0 6px 20px;
+}
+
+.col-head {
+  font-size: .62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 5px;
+  margin-bottom: 4px;
+}
+.col-left  .col-head { background: #ddeeff; color: #1255a0; border: 1px solid #b8d4f0; }
+.col-right .col-head { background: #e4f5e6; color: #256b2a; border: 1px solid #b8deba; }
+
+.plist { display: flex; flex-direction: column; gap: 4px; }
+
+/* ── Player card ─────────────────────────────────────── */
+.pcard {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 7px 6px 11px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, opacity .15s, box-shadow .15s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  box-shadow: var(--shadow);
+}
+
+/* Tira de color a la izquierda */
+.pcard::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 4px; bottom: 4px;
+  width: 3px;
+  border-radius: 2px;
+}
+.pcard.cm50::before { background: var(--strip50); }
+.pcard.cm40::before { background: var(--strip40); }
+.pcard.cm30::before { background: var(--strip30); }
+.pcard.clib::before { background: var(--striplib); }
+
+.pcard.selected {
+  border-color: var(--orange) !important;
+  background: #fff6ee !important;
+  box-shadow: 0 0 0 2px rgba(200,92,0,.15), 0 1px 4px rgba(200,92,0,.1) !important;
+}
+.pcard.compatible {
+  border-color: var(--green) !important;
+  background: #f0faf3 !important;
+  box-shadow: 0 0 0 2px rgba(30,132,68,.12), 0 1px 4px rgba(30,132,68,.08) !important;
+}
+.pcard.incompatible { opacity: .28; }
+
+.card-row { display: flex; align-items: flex-start; gap: 5px; }
+
+.p-num {
+  font-size: .66rem;
+  font-weight: 900;
+  color: var(--muted);
+  min-width: 20px;
+  padding-top: 1px;
+  line-height: 1;
+}
+.p-body { flex: 1; min-width: 0; }
+.p-name {
+  font-size: .72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+  color: var(--text);
+}
+.p-age { font-size: .58rem; color: var(--muted); margin-top: 1px; }
+
+.p-badge {
+  font-size: .55rem;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  flex-shrink: 0;
+  align-self: center;
+}
+.bm50 { background: var(--bg50); color: var(--c50); }
+.bm40 { background: var(--bg40); color: var(--c40); }
+.bm30 { background: var(--bg30); color: var(--c30); }
+.blib { background: var(--bglib); color: var(--clib); }
+
+.slot-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 3px;
+  padding-left: 25px;
+}
+.slot-lbl { font-size: .54rem; color: var(--muted); }
+.slot-tag {
+  font-size: .52rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.st50  { background: var(--bg50);  color: var(--c50);  }
+.st40  { background: var(--bg40);  color: var(--c40);  }
+.st30  { background: var(--bg30);  color: var(--c30);  }
+.stlib { background: var(--bglib); color: var(--clib); }
+
+/* ── Loading skeleton ────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, #e8edf3 25%, #d8e2eb 50%, #e8edf3 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  border-radius: 8px;
+  height: 52px;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
