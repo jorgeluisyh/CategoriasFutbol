@@ -166,6 +166,11 @@ body {
   box-shadow: 0 0 0 2px rgba(30,132,68,.12), 0 1px 4px rgba(30,132,68,.08) !important;
 }
 .pcard.incompatible { opacity: .28; }
+.pcard.swappable {
+  border-color: var(--strip40) !important;
+  background: #edf3ff !important;
+  box-shadow: 0 0 0 2px rgba(25,118,210,.12), 0 1px 4px rgba(25,118,210,.08) !important;
+}
 
 .card-row { display: flex; align-items: flex-start; gap: 5px; }
 
@@ -222,6 +227,34 @@ body {
 .st40  { background: var(--bg40);  color: var(--c40);  }
 .st30  { background: var(--bg30);  color: var(--c30);  }
 .stlib { background: var(--bglib); color: var(--clib); }
+
+/* ── Grupos de cupos (titulares) ─────────────────────── */
+.slot-group {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.group-head {
+  font-size: .6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  padding: 3px 8px;
+}
+.group-body {
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.sg-m50 { border-color: var(--strip50); }
+.sg-m50 .group-head { background: var(--bg50); color: var(--c50); }
+.sg-m40 { border-color: var(--strip40); }
+.sg-m40 .group-head { background: var(--bg40); color: var(--c40); }
+.sg-m30 { border-color: var(--strip30); }
+.sg-m30 .group-head { background: var(--bg30); color: var(--c30); }
+.sg-lib { border-color: var(--striplib); }
+.sg-lib .group-head { background: var(--bglib); color: var(--clib); }
 
 /* ── Loading skeleton ────────────────────────────────── */
 .skeleton {

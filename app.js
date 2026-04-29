@@ -33,12 +33,13 @@ const FALLBACK_PLAYERS = [
 ];
 
 // ── Estado ───────────────────────────────────────────────
-let allPlayers = [];
-let starters   = [];
-let subs       = [];
-let selStarter = null;
-let selSub     = null;
-let infoTimer  = null;
+let allPlayers       = [];
+let defaultStarterIds = null;   // IDs del equipo titular definido en players.json
+let starters         = [];
+let subs             = [];
+let selStarter       = null;
+let selSub           = null;
+let infoTimer        = null;
 
 // ── Helpers ──────────────────────────────────────────────
 function getCategory(age) {
@@ -96,8 +97,17 @@ function buildStartersFromPool(pool) {
 }
 
 function resetToDefault() {
-  starters   = buildStartersFromPool(allPlayers.slice(0, 8));
-  subs       = allPlayers.slice(8).map(p => ({ ...p, cat: getCategory(p.age) }));
+  const map = new Map(allPlayers.map(p => [p.id, p]));
+
+  // Si el JSON define starters explícitos y todos los IDs existen, usarlos.
+  // De lo contrario caer a los primeros 8 del array.
+  const ids = defaultStarterIds?.length === 8 && defaultStarterIds.every(id => map.has(id))
+    ? defaultStarterIds
+    : allPlayers.slice(0, 8).map(p => p.id);
+
+  const starterSet = new Set(ids);
+  starters   = buildStartersFromPool(ids.map(id => map.get(id)));
+  subs       = allPlayers.filter(p => !starterSet.has(p.id)).map(p => ({ ...p, cat: getCategory(p.age) }));
   selStarter = null;
   selSub     = null;
 }
@@ -115,9 +125,12 @@ function setInfo(msg, type = '', autoClear = false) {
 
 function updateInfo() {
   if (selStarter !== null) {
-    const s = starters[selStarter];
-    const n = subs.filter(sub => canFill(sub, s.slot.cat)).length;
-    setInfo(`${s.name} seleccionado · ${n} suplente${n !== 1 ? 's' : ''} disponible${n !== 1 ? 's' : ''}`, 'active');
+    const s     = starters[selStarter];
+    const nSubs = subs.filter(sub => canFill(sub, s.slot.cat)).length;
+    const nSwap = starters.filter((st, i) => i !== selStarter && canFill(s, st.slot.cat) && canFill(st, s.slot.cat)).length;
+    let msg = `${s.name} · ${nSubs} suplente${nSubs !== 1 ? 's' : ''}`;
+    if (nSwap > 0) msg += ` · ${nSwap} titular${nSwap !== 1 ? 'es' : ''} intercambiable${nSwap !== 1 ? 's' : ''}`;
+    setInfo(msg, 'active');
   } else if (selSub !== null) {
     const s = subs[selSub];
     const n = starters.filter(st => canFill(s, st.slot.cat)).length;
@@ -136,21 +149,22 @@ function makeCard(p, isStarter, idx) {
   card.className = `pcard ${CAT_CLASS[p.cat]}`;
 
   if (isStarter) {
-    if (selStarter === idx)  card.classList.add('selected');
-    else if (selSub !== null)
+    if (selStarter === idx) {
+      card.classList.add('selected');
+    } else if (selSub !== null) {
       card.classList.add(canFill(subs[selSub], p.slot.cat) ? 'compatible' : 'incompatible');
+    } else if (selStarter !== null) {
+      const sel = starters[selStarter];
+      const canSwap = canFill(sel, p.slot.cat) && canFill(p, sel.slot.cat);
+      card.classList.add(canSwap ? 'swappable' : 'incompatible');
+    }
   } else {
-    if (selSub === idx)          card.classList.add('selected');
-    else if (selStarter !== null)
+    if (selSub === idx) {
+      card.classList.add('selected');
+    } else if (selStarter !== null) {
       card.classList.add(canFill(p, starters[selStarter].slot.cat) ? 'compatible' : 'incompatible');
+    }
   }
-
-  const slotHtml = isStarter
-    ? `<div class="slot-row">
-         <span class="slot-lbl">Cupo:</span>
-         <span class="slot-tag ${SLOT_CLASS[p.slot.cat]}">${p.slot.label}</span>
-       </div>`
-    : '';
 
   card.innerHTML = `
     <div class="card-row">
@@ -161,29 +175,58 @@ function makeCard(p, isStarter, idx) {
       </div>
       <div class="p-badge ${BADGE_CLASS[p.cat]}">${p.cat}</div>
     </div>
-    ${slotHtml}
   `;
 
   card.addEventListener('click', isStarter ? () => onStarterClick(idx) : () => onSubClick(idx));
   return card;
 }
 
-function render() {
+const GROUPS = [
+  { cat:'M50', label:'Cupo M50',  css:'sg-m50' },
+  { cat:'M40', label:'Cupo M40',  css:'sg-m40' },
+  { cat:'M30', label:'Cupo M30',  css:'sg-m30' },
+  { cat:'LIB', label:'Cupo Libre',css:'sg-lib'  },
+];
+
+function renderStarters() {
   const sl = document.getElementById('starterList');
-  const su = document.getElementById('subList');
   sl.innerHTML = '';
-  su.innerHTML = '';
-  starters.forEach((p, i) => sl.appendChild(makeCard(p, true,  i)));
-  subs.forEach    ((p, i) => su.appendChild(makeCard(p, false, i)));
+  GROUPS.forEach(({ cat, label, css }) => {
+    const members = starters.map((p, i) => ({ p, i })).filter(({ p }) => p.slot.cat === cat);
+    if (!members.length) return;
+    const group = document.createElement('div');
+    group.className = `slot-group ${css}`;
+    group.innerHTML = `<div class="group-head">${label} · ${members.length}</div>`;
+    const body = document.createElement('div');
+    body.className = 'group-body';
+    members.forEach(({ p, i }) => body.appendChild(makeCard(p, true, i)));
+    group.appendChild(body);
+    sl.appendChild(group);
+  });
 }
 
-// ── Swap ─────────────────────────────────────────────────
+function render() {
+  renderStarters();
+  const su = document.getElementById('subList');
+  su.innerHTML = '';
+  subs.forEach((p, i) => su.appendChild(makeCard(p, false, i)));
+}
+
+// ── Swap titular ↔ suplente ───────────────────────────────
 function doSwap(starterIdx, subIdx) {
   const slot = starters[starterIdx].slot;
   const tmp  = { ...subs[subIdx], slot };
   subs[subIdx] = { ...starters[starterIdx] };
   delete subs[subIdx].slot;
   starters[starterIdx] = tmp;
+  saveState();
+}
+
+// ── Swap titular ↔ titular (intercambio de posición) ─────
+function doStarterSwap(idxA, idxB) {
+  const slotA = starters[idxA].slot;
+  starters[idxA] = { ...starters[idxA], slot: starters[idxB].slot };
+  starters[idxB] = { ...starters[idxB], slot: slotA };
   saveState();
 }
 
@@ -200,6 +243,15 @@ function onStarterClick(i) {
     }
   } else if (selStarter === i) {
     selStarter = null; setInfo(IDLE_MSG);
+  } else if (selStarter !== null) {
+    const a = starters[selStarter], b = starters[i];
+    if (canFill(a, b.slot.cat) && canFill(b, a.slot.cat)) {
+      doStarterSwap(selStarter, i);
+      setInfo(`✓ ${a.name} ↔ ${b.name} cambian de posición`, 'success', true);
+      selStarter = null;
+    } else {
+      setInfo(`✗ ${a.name} y ${b.name} no pueden intercambiar cupos`, 'error');
+    }
   } else {
     selStarter = i; selSub = null; updateInfo();
   }
@@ -238,9 +290,11 @@ async function init() {
     const res = await fetch('players.json');
     if (!res.ok) throw new Error();
     const data = await res.json();
-    allPlayers = data.players;
+    allPlayers        = data.players;
+    defaultStarterIds = data.starters ?? null;
   } catch {
-    allPlayers = FALLBACK_PLAYERS;
+    allPlayers        = FALLBACK_PLAYERS;
+    defaultStarterIds = null;
   }
   if (!restoreState()) resetToDefault();
   render();

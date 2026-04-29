@@ -1,4 +1,5 @@
 {
+  "starters": [4, 11, 2, 6, 1, 5, 3, 14],
   "players": [
     { "id": 1,  "name": "Jhordy Lucero",    "age": 32, "number": 7  },
     { "id": 2,  "name": "Walter Mallma",     "age": 44, "number": 3  },
